@@ -10,8 +10,8 @@ import userRoutes from "./routes/userRoutes.js";
 import categoriesRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 
-dotenv.config();
-const port = process.env.PORT || 5001;
+dotenv.config({ path: path.resolve("backend", ".env") });
+const port = process.env.PORT || 5002;
 
 connectDB();
 const app = express();
