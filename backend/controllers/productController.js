@@ -165,6 +165,77 @@ const filterProducts = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+// Fetch products by category ID
+const getProductsByCategoryId = asyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
+  if (!categoryId) {
+    res.status(400);
+    throw new Error("Category ID is required");
+  }
+  const products = await Product.find({ category: categoryId });
+  if (!products || products.length === 0) {
+    res.status(404);
+    throw new Error("No products found for this category");
+  }
+  res.json(products);
+});
+
+const applySaleToProduct = asyncHandler(async (req, res) => {
+  const { productId, discountPercentage, saleStartDate, saleEndDate } =
+    req.body;
+
+  if (!productId || !discountPercentage) {
+    res.status(400);
+    throw new Error("Product ID and discount percentage are required");
+  }
+
+  if (discountPercentage <= 0 || discountPercentage > 100) {
+    res.status(400);
+    throw new Error("Discount percentage must be between 1 and 100");
+  }
+
+  if (
+    saleStartDate &&
+    saleEndDate &&
+    new Date(saleStartDate) > new Date(saleEndDate)
+  ) {
+    res.status(400);
+    throw new Error("Sale start date cannot be after the end date");
+  }
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  product.salePrice =
+    product.price - (product.price * discountPercentage) / 100;
+  product.isOnSale = true;
+  product.saleStartDate = saleStartDate || null;
+  product.saleEndDate = saleEndDate || null;
+
+  await product.save();
+
+  res.json({ message: "Sale applied successfully", product });
+});
+const getProductsOnSale = asyncHandler(async (req, res) => {
+  const currentDate = new Date();
+
+  const products = await Product.find({
+    isOnSale: true,
+    saleStartDate: { $lte: currentDate },
+    saleEndDate: { $gte: currentDate },
+  });
+
+  if (!products || products.length === 0) {
+    res.status(404);
+    throw new Error("No products on sale found");
+  }
+
+  res.json(products);
+});
 export {
   createProduct,
   updateProduct,
@@ -176,4 +247,7 @@ export {
   fetchTopProducts,
   fetchNewProducts,
   filterProducts,
+  getProductsByCategoryId,
+  applySaleToProduct,
+  getProductsOnSale,
 };

@@ -13,6 +13,9 @@ import {
   fetchTopProducts,
   fetchNewProducts,
   filterProducts,
+  getProductsByCategoryId,
+  applySaleToProduct,
+  getProductsOnSale,
 } from "../controllers/productController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
@@ -37,6 +40,12 @@ router.route("/top").get(fetchTopProducts);
 // Fetch new products
 router.route("/new").get(fetchNewProducts);
 
+// Apply a sale to a product
+router.route("/sale/:id").put(authenticate, authorizeAdmin, applySaleToProduct);
+
+// Get products on sale
+router.route("/sale").get(getProductsOnSale);
+
 // Get a single product by ID
 router.route("/:id").get(getProductById);
 
@@ -45,5 +54,8 @@ router.route("/:id/review").post(authenticate, addProductReview);
 
 // Filter products by category and price range
 router.route("/filter").post(filterProducts);
+
+// Get products by category ID
+router.route("/category/:categoryId").get(getProductsByCategoryId);
 
 export default router;

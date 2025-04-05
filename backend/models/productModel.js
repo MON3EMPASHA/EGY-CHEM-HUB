@@ -28,6 +28,10 @@ const productSchema = mongoose.Schema(
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
     countInStock: { type: Number, required: true, default: 0 },
+    salePrice: { type: Number, default: null },
+    isOnSale: { type: Boolean, default: false },
+    saleStartDate: { type: Date, default: null },
+    saleEndDate: { type: Date, default: null },
   },
   { timestamps: true }
 );
