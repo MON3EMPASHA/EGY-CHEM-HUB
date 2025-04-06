@@ -180,6 +180,20 @@ const getProductsByCategoryId = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+const getProductsByBrandyId = asyncHandler(async (req, res) => {
+  const { brandID } = req.params;
+  if (!brandID) {
+    res.status(400);
+    throw new Error("Brand ID is required");
+  }
+  const products = await Product.find({ brand: brandID });
+  if (!products || products.length === 0) {
+    res.status(404);
+    throw new Error("No products found for this category");
+  }
+  res.json(products);
+});
+
 const applySaleToProduct = asyncHandler(async (req, res) => {
   const { productId, discountPercentage, saleStartDate, saleEndDate } =
     req.body;
@@ -250,4 +264,5 @@ export {
   getProductsByCategoryId,
   applySaleToProduct,
   getProductsOnSale,
+  getProductsByBrandyId,
 };

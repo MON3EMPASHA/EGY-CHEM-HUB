@@ -9,6 +9,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import categoriesRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import brandRoutes from "./routes/brandRoutes.js";
 
 dotenv.config({ path: path.resolve("backend", ".env") });
 const port = process.env.PORT || 5002;
@@ -22,5 +23,6 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/brands", brandRoutes);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

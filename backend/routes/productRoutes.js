@@ -16,6 +16,7 @@ import {
   getProductsByCategoryId,
   applySaleToProduct,
   getProductsOnSale,
+  getProductsByBrandyId,
 } from "../controllers/productController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
@@ -57,5 +58,6 @@ router.route("/filter").post(filterProducts);
 
 // Get products by category ID
 router.route("/category/:categoryId").get(getProductsByCategoryId);
+router.route("/brand/:brandID").get(getProductsByBrandyId);
 
 export default router;
