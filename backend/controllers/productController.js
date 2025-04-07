@@ -2,7 +2,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, description, price, category, quantity, brand } = req.body;
+  const { name, description, price, category, brand } = req.body;
 
   // Validation
   switch (true) {
@@ -16,8 +16,6 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new Error("Price is required");
     case !category:
       throw new Error("Category is required");
-    case !quantity:
-      throw new Error("Quantity is required");
   }
 
   const product = await Product.create({ ...req.body });
@@ -26,22 +24,22 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, description, price, category, quantity, brand } = req.body;
-
-  // Ensure at least one field is provided for update
-  if (!name && !description && !price && !category && !quantity && !brand) {
-    throw new Error("At least one field is required for update.");
-  }
+  const updates = req.body; // Dynamically handle all fields from the request body
 
   // Validate category if provided
-  if (category && !mongoose.Types.ObjectId.isValid(category)) {
+  if (updates.category && !mongoose.Types.ObjectId.isValid(updates.category)) {
     throw new Error("Invalid category ID.");
+  }
+
+  // Validate brand if provided
+  if (updates.brand && !mongoose.Types.ObjectId.isValid(updates.brand)) {
+    throw new Error("Invalid brand ID.");
   }
 
   const product = await Product.findByIdAndUpdate(
     req.params.id,
-    { ...req.body },
-    { new: true, runValidators: true }
+    { ...updates }, // Spread all updates dynamically
+    { new: true, runValidators: true } // Return the updated document and validate fields
   );
 
   if (!product) {
@@ -72,6 +70,7 @@ const getProductById = asyncHandler(async (req, res) => {
 const getAllProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({})
     .populate("category")
+    .populate("brand")
     .limit(12)
     .sort({ createdAt: -1 });
 

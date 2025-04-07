@@ -58,6 +58,8 @@ router.route("/filter").post(filterProducts);
 
 // Get products by category ID
 router.route("/category/:categoryId").get(getProductsByCategoryId);
+
+// Get products by brand ID
 router.route("/brand/:brandID").get(getProductsByBrandyId);
 
 export default router;
