@@ -12,6 +12,7 @@ import categoriesRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
+import eventRoutes from "./routes/EventRoutes.js";
 dotenv.config({ path: path.resolve("backend", ".env") });
 const port = process.env.PORT || 5002;
 
@@ -27,5 +28,6 @@ app.use("/api/categories", categoriesRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/articles", articleRoutes);
+app.use("/api/events", eventRoutes);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
