@@ -1,18 +1,26 @@
 import mongoose from "mongoose";
-
+"ar", "fr", "de", "zh", "es", "ru", "ja";
 const ArticleSchema = new mongoose.Schema(
   {
     title: {
-      en: String,
+      en: { type: String, required: true },
       fr: String,
       ar: String,
       de: String,
+      zh: String,
+      es: String,
+      ru: String,
+      ja: String,
     },
     content: {
-      en: String,
+      en: { type: String, required: true },
       fr: String,
       ar: String,
       de: String,
+      zh: String,
+      es: String,
+      ru: String,
+      ja: String,
     },
     categories: [{ type: String }],
     tags: [{ type: String }],

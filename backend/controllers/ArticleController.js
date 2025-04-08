@@ -14,7 +14,7 @@ const createArticle = asyncHandler(async (req, res) => {
       throw new Error("Content is required");
   }
 
-  const languages = ["fr", "ar", "de"];
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
   const translatedTitle = { en: title };
   const translatedContent = { en: content };
 
@@ -85,8 +85,22 @@ const getArticleById = asyncHandler(async (req, res) => {
 const updateArticleById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
+
+  // Get the current article first
+  const currentArticle = await Article.findById(id);
+  if (!currentArticle) {
+    res.status(404);
+    throw new Error("Article not found");
+  }
 
   const updateObject = {};
+  let needsRetranslation = false;
+
+  // Check if English title or content is being updated
+  if (updates.title?.en || updates.content?.en) {
+    needsRetranslation = true;
+  }
 
   // Handle title updates
   if (updates.title) {
@@ -102,9 +116,28 @@ const updateArticleById = asyncHandler(async (req, res) => {
     }
   }
 
-  // Handle categories update (new addition)
+  // Handle categories update
   if (updates.categories) {
     updateObject.categories = updates.categories;
+  }
+
+  // If English was updated, retranslate to all languages
+  if (needsRetranslation) {
+    const englishTitle = updates.title?.en || currentArticle.title.en;
+    const englishContent = updates.content?.en || currentArticle.content.en;
+
+    // Retranslate title
+    for (const lang of languages) {
+      updateObject[`title.${lang}`] = await translateText(englishTitle, lang);
+    }
+
+    // Retranslate content
+    for (const lang of languages) {
+      updateObject[`content.${lang}`] = await translateText(
+        englishContent,
+        lang
+      );
+    }
   }
 
   const article = await Article.findByIdAndUpdate(
@@ -112,11 +145,6 @@ const updateArticleById = asyncHandler(async (req, res) => {
     { $set: updateObject },
     { new: true, runValidators: true }
   );
-
-  if (!article) {
-    res.status(404);
-    throw new Error("Article not found");
-  }
 
   res.json(article);
 });
