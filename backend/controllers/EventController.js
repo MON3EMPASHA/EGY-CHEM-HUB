@@ -1,5 +1,6 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Event from "../models/EventModel.js";
+import translateText from "../utils/translate.js";
 
 const createEvent = asyncHandler(async (req, res) => {
   const { title, description, date, location } = req.body;
@@ -14,30 +15,67 @@ const createEvent = asyncHandler(async (req, res) => {
     throw new Error("Not authorized to create an event");
   }
 
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
+  const translatedTitle = { en: title };
+  const translatedDescription = { en: description };
+  const translatedLocation = { en: location };
+
+  // Translate to other languages
+  for (const lang of languages) {
+    translatedTitle[lang] = await translateText(title, lang);
+    translatedDescription[lang] = await translateText(description, lang);
+    translatedLocation[lang] = await translateText(location, lang);
+  }
+
   const event = await Event.create({
-    title,
-    description,
+    title: translatedTitle,
+    description: translatedDescription,
     date,
-    location,
-    createdBy: req.user._id, // Automatically set to the logged-in admin's ID
+    location: translatedLocation,
+    createdBy: req.user._id,
   });
 
   res.status(201).json(event);
 });
 const getEvents = asyncHandler(async (req, res) => {
+  // Fetch all events sorted by date (ascending)
   const events = await Event.find().sort({ date: 1 });
-  res.status(200).json(events);
+
+  const result = events.map((event) => ({
+    _id: event._id,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    date: event.date,
+    createdBy: event.createdBy,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
+  }));
+
+  res.status(200).json(result);
 });
 
 const getEventById = asyncHandler(async (req, res) => {
+  // Fetch the event by ID
   const event = await Event.findById(req.params.id);
 
   if (!event) {
     res.status(404);
     throw new Error("Event not found");
   }
+  0;
+  const result = {
+    _id: event._id,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    date: event.date,
+    createdBy: event.createdBy,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
+  };
 
-  res.status(200).json(event);
+  res.status(200).json(result);
 });
 
 const updateEvent = asyncHandler(async (req, res) => {
@@ -50,10 +88,49 @@ const updateEvent = asyncHandler(async (req, res) => {
     throw new Error("Event not found");
   }
 
-  event.title = title || event.title;
-  event.description = description || event.description;
-  event.date = date || event.date;
-  event.location = location || event.location;
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
+
+  // Update English fields and translate if necessary
+  if (title?.en) {
+    event.title.en = title.en;
+    for (const lang of languages) {
+      event.title[lang] = await translateText(title.en, lang);
+    }
+  } else if (title) {
+    // Update other language-specific titles
+    Object.keys(title).forEach((lang) => {
+      event.title[lang] = title[lang];
+    });
+  }
+
+  if (description?.en) {
+    event.description.en = description.en;
+    for (const lang of languages) {
+      event.description[lang] = await translateText(description.en, lang);
+    }
+  } else if (description) {
+    // Update other language-specific descriptions
+    Object.keys(description).forEach((lang) => {
+      event.description[lang] = description[lang];
+    });
+  }
+
+  if (location?.en) {
+    event.location.en = location.en;
+    for (const lang of languages) {
+      event.location[lang] = await translateText(location.en, lang);
+    }
+  } else if (location) {
+    // Update other language-specific locations
+    Object.keys(location).forEach((lang) => {
+      event.location[lang] = location[lang];
+    });
+  }
+
+  // Update date if provided
+  if (date) {
+    event.date = date;
+  }
 
   const updatedEvent = await event.save();
   res.status(200).json(updatedEvent);
