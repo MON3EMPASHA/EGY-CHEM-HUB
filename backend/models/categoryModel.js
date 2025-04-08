@@ -2,11 +2,14 @@ import mongoose from "mongoose";
 
 const categorySchema = new mongoose.Schema({
   name: {
-    type: String,
-    trim: true,
-    required: true,
-    maxLength: 32,
-    unique: true,
+    en: { type: String, required: true, trim: true, maxLength: 32 },
+    ar: { type: String },
+    fr: { type: String },
+    de: { type: String },
+    zh: { type: String },
+    es: { type: String },
+    ru: { type: String },
+    ja: { type: String },
   },
 });
 
