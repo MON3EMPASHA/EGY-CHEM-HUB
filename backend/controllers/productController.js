@@ -43,10 +43,11 @@ const createProduct = asyncHandler(async (req, res) => {
     Category.exists({ _id: category }),
     Brand.exists({ _id: brand }),
   ]);
-
+  // Check if category and brand exist in the database
   if (!categoryExists) throw new Error("Category not found");
   if (!brandExists) throw new Error("Brand not found");
 
+  // List of languages to translate into
   const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
 
   // Initialize with English values for required fields
