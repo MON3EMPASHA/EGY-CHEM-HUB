@@ -6,7 +6,7 @@ const translateText = async (text, targetLang) => {
     null,
     {
       params: {
-        auth_key: "724bbf29-50b2-46dd-a5e8-8fbf51813f6d:fx",
+        auth_key: process.env.DEEPL_API_KEY,
         text,
         target_lang: targetLang.toUpperCase(),
       },

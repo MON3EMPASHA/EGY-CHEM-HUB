@@ -1,23 +1,131 @@
+import mongoose from "mongoose";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
 import translateText from "../utils/translate.js";
-
+import Category from "../models/categoryModel.js";
+import Brand from "../models/brandModel.js";
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const {
+  Types: { ObjectId },
+} = mongoose;
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, description, category, brand } = req.body;
+  const {
+    name,
+    description,
+    category,
+    brand,
+    // Translatable optional fields
+    chemicalName,
+    grade,
+    commercialName,
+    usageApplications,
+    storage,
+    safetyStandard,
+    // Non-translatable optional fields (just examples, add others as needed)
+    hsCode,
+    casNo,
+    packingType,
+    minimumQuantities,
+    // ... include other fields from your schema
+    ...rest // Catch any other fields
+  } = req.body;
 
-  // Validation
-  switch (true) {
-    case !name:
-      throw new Error("Name is required");
-    case !brand:
-      throw new Error("Brand is required");
-    case !description:
-      throw new Error("Description is required");
-    case !category:
-      throw new Error("Category is required");
+  // Validation for required fields
+  if (!name?.en) throw new Error("English name is required");
+  if (!description?.en) throw new Error("English description is required");
+  if (!category) throw new Error("Category is required");
+  if (!brand) throw new Error("Brand is required");
+
+  // check if category and brand are valid ObjectId
+  if (!ObjectId.isValid(category)) throw new Error("Invalid category ID");
+  if (!ObjectId.isValid(brand)) throw new Error("Invalid brand ID");
+  const [categoryExists, brandExists] = await Promise.all([
+    Category.exists({ _id: category }),
+    Brand.exists({ _id: brand }),
+  ]);
+
+  if (!categoryExists) throw new Error("Category not found");
+  if (!brandExists) throw new Error("Brand not found");
+
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
+
+  // Initialize with English values for required fields
+  const translatedFields = {
+    name: { en: name.en },
+    description: { en: description.en },
+  };
+
+  // List of fields that need translation (all nested { en: ... })
+  const translatableFields = {
+    chemicalName,
+    grade,
+    commercialName,
+    usageApplications,
+    storage,
+    safetyStandard,
+  };
+
+  // Process translatable fields (if they exist)
+  for (const [field, value] of Object.entries(translatableFields)) {
+    if (value?.en) {
+      translatedFields[field] = { en: value.en };
+      for (const lang of languages) {
+        try {
+          translatedFields[field][lang] = await translateText(value.en, lang);
+          await delay(500); // Rate limiting
+        } catch (error) {
+          console.error(`Failed to translate ${field} to ${lang}:`, error);
+          translatedFields[field][lang] = value.en; // Fallback to English
+        }
+      }
+    }
   }
 
-  const product = await Product.create({ ...req.body });
+  // Non-translatable fields (directly pass through)
+  const nonTranslatableFields = {
+    hsCode,
+    casNo,
+    packingType,
+    minimumQuantities,
+    // ... add other non-translatable fields here
+  };
+
+  // Create the product with ALL fields (translatable + non-translatable)
+  const product = await Product.create({
+    name: translatedFields.name,
+    description: translatedFields.description,
+    // Spread translated optional fields (if they exist)
+    ...(translatedFields.chemicalName && {
+      chemicalName: translatedFields.chemicalName,
+    }),
+    ...(translatedFields.grade && { grade: translatedFields.grade }),
+    ...(translatedFields.commercialName && {
+      commercialName: translatedFields.commercialName,
+    }),
+    ...(translatedFields.usageApplications && {
+      usageApplications: translatedFields.usageApplications,
+    }),
+    ...(translatedFields.storage && { storage: translatedFields.storage }),
+    ...(translatedFields.safetyStandard && {
+      safetyStandard: translatedFields.safetyStandard,
+    }),
+    // Spread non-translatable fields (if they exist)
+    ...(nonTranslatableFields.hsCode && {
+      hsCode: nonTranslatableFields.hsCode,
+    }),
+    ...(nonTranslatableFields.casNo && { casNo: nonTranslatableFields.casNo }),
+    ...(nonTranslatableFields.packingType && {
+      packingType: nonTranslatableFields.packingType,
+    }),
+    ...(nonTranslatableFields.minimumQuantities && {
+      minimumQuantities: nonTranslatableFields.minimumQuantities,
+    }),
+    // Required fields
+    category,
+    brand,
+    // Spread any other valid fields (optional, if you want to allow extra fields)
+    ...rest,
+  });
 
   res.json(product);
 });
