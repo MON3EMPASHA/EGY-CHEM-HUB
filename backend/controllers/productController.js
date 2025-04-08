@@ -1,8 +1,9 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
+import translateText from "../utils/translate.js";
 
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, description, price, category, brand } = req.body;
+  const { name, description, category, brand } = req.body;
 
   // Validation
   switch (true) {
@@ -12,8 +13,6 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new Error("Brand is required");
     case !description:
       throw new Error("Description is required");
-    case !price:
-      throw new Error("Price is required");
     case !category:
       throw new Error("Category is required");
   }

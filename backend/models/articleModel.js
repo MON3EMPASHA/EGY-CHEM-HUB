@@ -14,7 +14,11 @@ const ArticleSchema = new mongoose.Schema(
       ar: String,
       de: String,
     },
+    categories: [{ type: String }],
+    tags: [{ type: String }],
+    isDeleted: { type: Boolean, default: false },
   },
+
   { timestamps: true }
 );
 const Article = mongoose.model("Article", ArticleSchema);

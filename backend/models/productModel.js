@@ -17,37 +17,122 @@ const reviewSchema = mongoose.Schema(
 
 const productSchema = mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: {
+      en: { type: String, required: true },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
     image: { type: String, required: true },
     brand: { type: ObjectId, ref: "Brand", required: true },
-    // quantity: { type: Number, required: true },
     category: { type: ObjectId, ref: "Category", required: true },
-    description: { type: String, required: true },
-    reviews: [reviewSchema],
+
+    description: {
+      en: { type: String, required: true },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    reviews: [
+      {
+        type: reviewSchema,
+      },
+    ],
     rating: { type: Number, required: true, default: 0 },
     numReviews: { type: Number, required: true, default: 0 },
-    price: { type: Number, required: true, default: 0 },
-    // countInStock: { type: Number, required: true, default: 0 },
-    salePrice: { type: Number, default: null },
+
     isOnSale: { type: Boolean, default: false },
     saleStartDate: { type: Date, default: null },
     saleEndDate: { type: Date, default: null },
-    tds: { type: String, default: null }, // Technical Data Sheet
-    msds: { type: String, default: null }, // Material Safety Data Sheet
-    coa: { type: String, default: null }, // Certificate Of Analysis
-    specializedCertificate: { type: String, default: null }, // Specialized Certificate
-    chemicalName: { type: String, default: null }, // Chemical name
-    grade: { type: String, default: null }, // Grade (industrial, food, pharmaceutical)
-    commercialName: { type: String, default: null }, // Commercial name
-    hsCode: { type: String, default: null }, // HS code
-    casNo: { type: String, default: null }, // CAS No.
-    usageApplications: { type: String, default: null }, // Usage and applications
-    packingType: { type: String, default: null }, // Packing type
-    packagingType: { type: String, default: null }, // Packaging type
-    hdPhotos: [{ type: String, default: [] }], // HD photos (array of URLs)
-    storage: { type: String, default: null }, // Storage
-    safetyStandard: { type: String, default: null }, // Safety standard (EMO)
-    minimumQuantities: { type: Number, default: null }, // Minimum quantities
+
+    tds: { type: String, default: null },
+    msds: { type: String, default: null },
+    coa: { type: String, default: null },
+    specializedCertificate: { type: String, default: null },
+
+    chemicalName: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    grade: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    commercialName: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    hsCode: { type: String, default: null },
+    casNo: { type: String, default: null },
+
+    usageApplications: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    packingType: { type: String, default: null },
+    packagingType: { type: String, default: null },
+    hdPhotos: [{ type: String, default: [] }],
+
+    storage: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    safetyStandard: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
+
+    minimumQuantities: { type: Number, default: null },
   },
   { timestamps: true }
 );
