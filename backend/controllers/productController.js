@@ -21,43 +21,62 @@ const createProduct = asyncHandler(async (req, res) => {
     usageApplications,
     storage,
     safetyStandard,
-    // Non-translatable optional fields (just examples, add others as needed)
+    // Non-translatable optional fields
     hsCode,
     casNo,
     packingType,
     minimumQuantities,
-    // ... include other fields from your schema
-    ...rest // Catch any other fields
+    ...rest
   } = req.body;
 
-  // Validation for required fields
+  // === 1. Validate required fields ===
   if (!name?.en) throw new Error("English name is required");
   if (!description?.en) throw new Error("English description is required");
   if (!category) throw new Error("Category is required");
   if (!brand) throw new Error("Brand is required");
 
-  // check if category and brand are valid ObjectId
-  if (!ObjectId.isValid(category)) throw new Error("Invalid category ID");
-  if (!ObjectId.isValid(brand)) throw new Error("Invalid brand ID");
+  // === 2. Validate ObjectId format ===
+  if (!mongoose.Types.ObjectId.isValid(category))
+    throw new Error("Invalid category ID");
+  if (!mongoose.Types.ObjectId.isValid(brand))
+    throw new Error("Invalid brand ID");
+
+  // === 3. Check if category/brand exist in DB ===
   const [categoryExists, brandExists] = await Promise.all([
     Category.exists({ _id: category }),
     Brand.exists({ _id: brand }),
   ]);
-  // Check if category and brand exist in the database
   if (!categoryExists) throw new Error("Category not found");
   if (!brandExists) throw new Error("Brand not found");
 
-  // List of languages to translate into
+  // === 4. Define languages to translate into ===
   const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
 
-  // Initialize with English values for required fields
+  // === 5. Initialize translated fields with English values ===
   const translatedFields = {
     name: { en: name.en },
     description: { en: description.en },
   };
 
-  // List of fields that need translation (all nested { en: ... })
-  const translatableFields = {
+  // === 6. Translate REQUIRED fields (name & description) ===
+  for (const lang of languages) {
+    try {
+      translatedFields.name[lang] = await translateText(name.en, lang);
+      translatedFields.description[lang] = await translateText(
+        description.en,
+        lang
+      );
+      await delay(500); // Rate limiting
+    } catch (error) {
+      console.error(`Failed to translate to ${lang}:`, error);
+      // Fallback to English if translation fails
+      translatedFields.name[lang] = name.en;
+      translatedFields.description[lang] = description.en;
+    }
+  }
+
+  // === 7. Translate OPTIONAL fields (if they exist) ===
+  const optionalTranslatableFields = {
     chemicalName,
     grade,
     commercialName,
@@ -66,32 +85,30 @@ const createProduct = asyncHandler(async (req, res) => {
     safetyStandard,
   };
 
-  // Process translatable fields (if they exist)
-  for (const [field, value] of Object.entries(translatableFields)) {
+  for (const [field, value] of Object.entries(optionalTranslatableFields)) {
     if (value?.en) {
-      translatedFields[field] = { en: value.en };
+      translatedFields[field] = { en: value.en }; // Initialize with English
       for (const lang of languages) {
         try {
           translatedFields[field][lang] = await translateText(value.en, lang);
-          await delay(500); // Rate limiting
+          await delay(500);
         } catch (error) {
           console.error(`Failed to translate ${field} to ${lang}:`, error);
-          translatedFields[field][lang] = value.en; // Fallback to English
+          translatedFields[field][lang] = value.en; // Fallback
         }
       }
     }
   }
 
-  // Non-translatable fields (directly pass through)
+  // === 8. Non-translatable fields (directly passed) ===
   const nonTranslatableFields = {
     hsCode,
     casNo,
     packingType,
     minimumQuantities,
-    // ... add other non-translatable fields here
   };
 
-  // Create the product with ALL fields (translatable + non-translatable)
+  // === 9. Create the product ===
   const product = await Product.create({
     name: translatedFields.name,
     description: translatedFields.description,
@@ -124,7 +141,7 @@ const createProduct = asyncHandler(async (req, res) => {
     // Required fields
     category,
     brand,
-    // Spread any other valid fields (optional, if you want to allow extra fields)
+    // Spread any other valid fields
     ...rest,
   });
 
@@ -132,27 +149,83 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const updates = req.body; // Dynamically handle all fields from the request body
+  const { id } = req.params;
+  const updates = req.body;
+  const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
 
-  // Validate category if provided
+  // === 1. Validate category/brand IDs (if provided) ===
   if (updates.category && !mongoose.Types.ObjectId.isValid(updates.category)) {
-    throw new Error("Invalid category ID.");
+    throw new Error("Invalid category ID");
   }
-
-  // Validate brand if provided
   if (updates.brand && !mongoose.Types.ObjectId.isValid(updates.brand)) {
-    throw new Error("Invalid brand ID.");
+    throw new Error("Invalid brand ID");
   }
 
-  const product = await Product.findByIdAndUpdate(
-    req.params.id,
-    { ...updates }, // Spread all updates dynamically
-    { new: true, runValidators: true } // Return the updated document and validate fields
-  );
-
-  if (!product) {
-    throw new Error("Product not found.");
+  // === 2. Check if category/brand exist (if provided) ===
+  if (updates.category) {
+    const categoryExists = await Category.exists({ _id: updates.category });
+    if (!categoryExists) throw new Error("Category not found");
   }
+  if (updates.brand) {
+    const brandExists = await Brand.exists({ _id: updates.brand });
+    if (!brandExists) throw new Error("Brand not found");
+  }
+
+  // === 3. Fetch the existing product ===
+  const existingProduct = await Product.findById(id);
+  if (!existingProduct) {
+    throw new Error("Product not found");
+  }
+
+  // === 4. Initialize updates with existing values (to preserve required fields) ===
+  const finalUpdates = { ...existingProduct.toObject(), ...updates };
+
+  // === 5. Handle translatable fields ===
+  const translatableFields = [
+    "name",
+    "description",
+    "chemicalName",
+    "grade",
+    "commercialName",
+    "usageApplications",
+    "storage",
+    "safetyStandard",
+  ];
+
+  for (const field of translatableFields) {
+    if (updates[field]) {
+      // Case 1: Only a specific language is updated (e.g., `name.ar`)
+      if (typeof updates[field] === "string" || !updates[field].en) {
+        // Merge the update without overwriting other languages
+        finalUpdates[field] = {
+          ...existingProduct[field],
+          ...updates[field],
+        };
+      }
+      // Case 2: English is updated → re-translate to all languages
+      else if (updates[field].en) {
+        finalUpdates[field] = { en: updates[field].en };
+        for (const lang of languages) {
+          try {
+            finalUpdates[field][lang] = await translateText(
+              updates[field].en,
+              lang
+            );
+            await delay(500);
+          } catch (error) {
+            console.error(`Failed to translate ${field} to ${lang}:`, error);
+            finalUpdates[field][lang] = updates[field].en; // Fallback
+          }
+        }
+      }
+    }
+  }
+
+  // === 6. Update the product ===
+  const product = await Product.findByIdAndUpdate(id, finalUpdates, {
+    new: true,
+    runValidators: true,
+  });
 
   res.json(product);
 });
