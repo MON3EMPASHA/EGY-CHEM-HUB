@@ -22,6 +22,8 @@ const ArticleSchema = new mongoose.Schema(
       ru: String,
       ja: String,
     },
+    //image
+    image: { type: String },
     categories: [{ type: String }],
     tags: [{ type: String }],
     isDeleted: { type: Boolean, default: false },

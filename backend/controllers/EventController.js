@@ -1,6 +1,6 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Event from "../models/EventModel.js";
-import translateText from "../utils/translate.js";
+import { translateText, cachedTranslate } from "../utils/translate.js";
 
 const createEvent = asyncHandler(async (req, res) => {
   const { title, description, date, location } = req.body;
@@ -22,9 +22,9 @@ const createEvent = asyncHandler(async (req, res) => {
 
   // Translate to other languages
   for (const lang of languages) {
-    translatedTitle[lang] = await translateText(title, lang);
-    translatedDescription[lang] = await translateText(description, lang);
-    translatedLocation[lang] = await translateText(location, lang);
+    translatedTitle[lang] = await cachedTranslate(title, lang);
+    translatedDescription[lang] = await cachedTranslate(description, lang);
+    translatedLocation[lang] = await cachedTranslate(location, lang);
   }
 
   const event = await Event.create({
@@ -94,7 +94,7 @@ const updateEvent = asyncHandler(async (req, res) => {
   if (title?.en) {
     event.title.en = title.en;
     for (const lang of languages) {
-      event.title[lang] = await translateText(title.en, lang);
+      event.title[lang] = await cachedTranslate(title.en, lang);
     }
   } else if (title) {
     // Update other language-specific titles
@@ -106,7 +106,7 @@ const updateEvent = asyncHandler(async (req, res) => {
   if (description?.en) {
     event.description.en = description.en;
     for (const lang of languages) {
-      event.description[lang] = await translateText(description.en, lang);
+      event.description[lang] = await cachedTranslate(description.en, lang);
     }
   } else if (description) {
     // Update other language-specific descriptions
@@ -118,7 +118,7 @@ const updateEvent = asyncHandler(async (req, res) => {
   if (location?.en) {
     event.location.en = location.en;
     for (const lang of languages) {
-      event.location[lang] = await translateText(location.en, lang);
+      event.location[lang] = await cachedTranslate(location.en, lang);
     }
   } else if (location) {
     // Update other language-specific locations

@@ -1,6 +1,6 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Article from "../models/ArticleModel.js";
-import translateText from "../utils/translate.js";
+import { translateText, cachedTranslate } from "../utils/translate.js";
 import redis from "redis";
 const client = redis.createClient();
 
@@ -19,8 +19,8 @@ const createArticle = asyncHandler(async (req, res) => {
   const translatedContent = { en: content };
 
   for (const lang of languages) {
-    translatedTitle[lang] = await translateText(title, lang);
-    translatedContent[lang] = await translateText(content, lang);
+    translatedTitle[lang] = await cachedTranslate(title, lang);
+    translatedContent[lang] = await cachedTranslate(content, lang);
   }
 
   const article = await Article.create({
@@ -128,12 +128,12 @@ const updateArticleById = asyncHandler(async (req, res) => {
 
     // Retranslate title
     for (const lang of languages) {
-      updateObject[`title.${lang}`] = await translateText(englishTitle, lang);
+      updateObject[`title.${lang}`] = await cachedTranslate(englishTitle, lang);
     }
 
     // Retranslate content
     for (const lang of languages) {
-      updateObject[`content.${lang}`] = await translateText(
+      updateObject[`content.${lang}`] = await cachedTranslate(
         englishContent,
         lang
       );

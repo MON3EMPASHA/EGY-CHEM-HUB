@@ -1,6 +1,6 @@
 import Category from "../models/categoryModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
-import translateText from "../utils/translate.js";
+import { cachedTranslate } from "../utils/translate.js";
 
 const createCategory = asyncHandler(async (req, res) => {
   const { name } = req.body;
@@ -21,7 +21,7 @@ const createCategory = asyncHandler(async (req, res) => {
 
   // Translate to other languages
   for (const lang of languages) {
-    translatedName[lang] = await translateText(name, lang);
+    translatedName[lang] = await cachedTranslate(name, lang);
   }
 
   const category = await Category.create({ name: translatedName });
@@ -46,7 +46,7 @@ const updateCategory = asyncHandler(async (req, res) => {
     const nameEn = name.en || name; // Handle both object and string input
     category.name.en = nameEn;
     for (const lang of languages) {
-      category.name[lang] = await translateText(nameEn, lang);
+      category.name[lang] = await cachedTranslate(nameEn, lang);
     }
   } else if (name) {
     // Update other language-specific names

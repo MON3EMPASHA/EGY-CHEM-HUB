@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import Product from "../models/productModel.js";
-import translateText from "../utils/translate.js";
+import { cachedTranslate } from "../utils/translate.js";
 import Category from "../models/categoryModel.js";
 import Brand from "../models/brandModel.js";
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -61,8 +61,8 @@ const createProduct = asyncHandler(async (req, res) => {
   // === 6. Translate REQUIRED fields (name & description) ===
   for (const lang of languages) {
     try {
-      translatedFields.name[lang] = await translateText(name.en, lang);
-      translatedFields.description[lang] = await translateText(
+      translatedFields.name[lang] = await cachedTranslate(name.en, lang);
+      translatedFields.description[lang] = await cachedTranslate(
         description.en,
         lang
       );
@@ -90,7 +90,7 @@ const createProduct = asyncHandler(async (req, res) => {
       translatedFields[field] = { en: value.en }; // Initialize with English
       for (const lang of languages) {
         try {
-          translatedFields[field][lang] = await translateText(value.en, lang);
+          translatedFields[field][lang] = await cachedTranslate(value.en, lang);
           await delay(500);
         } catch (error) {
           console.error(`Failed to translate ${field} to ${lang}:`, error);
@@ -207,7 +207,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         finalUpdates[field] = { en: updates[field].en };
         for (const lang of languages) {
           try {
-            finalUpdates[field][lang] = await translateText(
+            finalUpdates[field][lang] = await cachedTranslate(
               updates[field].en,
               lang
             );
