@@ -1,14 +1,18 @@
-import { Box } from '@chakra-ui/react'
-import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
-import Home from './pages/Home'
-function App() {
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HomePage from './routes/HomePage'
+import LoginPage from './routes/LoginPage'
+import RegisterPage from './routes/RegisterPage'
+
+const App = () => {
   return (
-    <Box>
-      <Navbar />
-      <Home />
-      <Footer />
-    </Box>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
   )
 }
 

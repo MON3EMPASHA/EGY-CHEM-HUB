@@ -3,31 +3,31 @@ import { SimpleGrid, Box, Text, Image, Checkbox } from '@chakra-ui/react'
 const categories = [
     {
         name: 'Water treatment',
-        image: 'https://images.unsplash.com/photo-1615811361523-6bd03d7748e7?w=800&q=80'
+        image: "/images/prod6.jpg"
     },
     {
         name: 'Oleo',
-        image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80'
+        image:  "/images/prod1.jpg"
     },
     {
         name: 'Sodium Chloride',
-        image: 'https://images.unsplash.com/photo-1550963295-019d8a8a61c5?w=800&q=80'
+        image:  "/images/prod2.jpg"
     },
     {
         name: 'Mining',
-        image: 'https://images.unsplash.com/photo-1624028772867-f9954b7c3bac?w=800&q=80'
+        image:  "/images/prod3.png"
     },
     {
         name: 'Printing',
-        image: 'https://images.unsplash.com/photo-1601225998165-31400a36d882?w=800&q=80'
+        image:  "/images/prod4.jpg"
     },
     {
         name: 'Paints',
-        image: 'https://images.unsplash.com/photo-1580462611434-39cde8c01e65?w=800&q=80'
+        image: "/images/prod5.jpg"
     },
     {
         name: 'Adhesives & Sealant',
-        image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80'
+        image:  "/images/prod6.jpg"
     }
 ]
 
@@ -83,23 +83,15 @@ const ProductCategories = () => {
             borderRadius="md"
             p={1}
           >
-            <Checkbox
-              size="sm"
-              colorScheme="red"
-              sx={{
-                'span.chakra-checkbox__control': {
-                  borderColor: 'red.600',
-                  _checked: {
-                    bg: 'red.600',
-                    borderColor: 'red.600',
-                  }
-                }
-              }}
-              onChange={(e) => {
-                
-                console.log(`${category.name} selected:`, e.target.checked)
-              }}
-            />
+           <Box
+            position="absolute"
+            top={0}
+            right={15}
+            bg="red.600"
+            borderRadius="md"
+            p={1}
+          ></Box>
+           
           </Box>
         </Box>
       ))}

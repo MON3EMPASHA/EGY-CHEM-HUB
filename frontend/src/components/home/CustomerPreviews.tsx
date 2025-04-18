@@ -1,6 +1,6 @@
 import { Box, Flex, Text, Heading, Image, IconButton, HStack, Grid } from "@chakra-ui/react";
 import { useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 interface Testimonial {
   id: number;
@@ -14,13 +14,13 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Muhammad Radwan",
+    name: "Mohamed Radwan",
     position: "CEO",
-    company: "Oleo Misr Company",
+    company: "Egy-chem Company",
     content: "This is not the first collaboration between Oleo Misr and EGYCHEMHUB to receive and receive products in the shortest time and the easiest way to receive them, so I recommend dealing with them.",
-    avatar: "/muhammad-radwan.jpg"
+    avatar: "/images/uncle-mohamed.jpg"
   },
-  // Add more testimonials...
+  
 ];
 
 const CustomerPreviews = () => {
@@ -28,11 +28,11 @@ const CustomerPreviews = () => {
 
   return (
     <Box bg="gray.50" py={20}>
-      <Box maxW="1200px" mx="auto" px={4}>
+      <Box maxW="1200px" mx="auto" px={2}>
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={8} alignItems="center">
           {/* Left Column - Info Section */}
           <Box>
-            <Heading as="h2" fontSize="2xl" mb={4}>
+            <Heading as="h2" fontSize="3xl" mb={4}>
               What our customers are saying us?
             </Heading>
             <Text color="gray.600" mb={8}>
@@ -109,7 +109,7 @@ const CustomerPreviews = () => {
             <Flex justify="flex-end" gap={4}>
               <IconButton
                 aria-label="Previous"
-                //icon={<FiChevronLeft />}
+                icon={<ChevronLeftIcon />}
                 onClick={() => setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
                 variant="outline"
                 borderRadius="full"
@@ -119,7 +119,7 @@ const CustomerPreviews = () => {
               />
               <IconButton
                 aria-label="Next"
-                //icon={<FiChevronRight />}
+                icon={<ChevronRightIcon />}
                 onClick={() => setCurrentSlide((prev) => (prev + 1) % testimonials.length)}
                 variant="outline"
                 borderRadius="full"
