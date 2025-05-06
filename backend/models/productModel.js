@@ -57,8 +57,17 @@ const productSchema = mongoose.Schema(
     tds: { type: String, default: null },
     msds: { type: String, default: null },
     coa: { type: String, default: null },
-    specializedCertificate: { type: String, default: null },
-
+    //  specializedCertificate: { type: String, default: null },
+    certifications: {
+      en: { type: String, default: null },
+      ar: { type: String },
+      fr: { type: String },
+      de: { type: String },
+      zh: { type: String },
+      es: { type: String },
+      ru: { type: String },
+      ja: { type: String },
+    },
     chemicalName: {
       en: { type: String, default: null },
       ar: { type: String },
@@ -133,6 +142,7 @@ const productSchema = mongoose.Schema(
     },
 
     minimumQuantities: { type: Number, default: null },
+    hazard: { type: String, default: null },
   },
   { timestamps: true }
 );
