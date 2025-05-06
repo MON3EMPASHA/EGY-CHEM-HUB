@@ -19,6 +19,9 @@ import articleRoutes from "./routes/articleRoutes.js";
 import eventRoutes from "./routes/EventRoutes.js";
 import uploadRoutes from "./routes/UploadRoutes.js";
 import cloudinaryRoutes from "./routes/cloudinaryRoutes.js";
+import newRoutes from "./routes/newRoutes.js";
+import supplierRoutes from "./routes/supplierRoutes.js";
+import { trackVisitor } from "./middlewares/visitorTracker.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Static files
+app.use(trackVisitor);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // API Routes
@@ -51,5 +55,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/news", newRoutes);
+app.use("/api/suppliers", supplierRoutes);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

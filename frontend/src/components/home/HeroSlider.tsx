@@ -1,73 +1,77 @@
-import { Box, Text, Heading, Flex, IconButton, VStack } from '@chakra-ui/react'
-import { QuestionIcon, DownloadIcon, ChatIcon } from '@chakra-ui/icons'
-import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Flex,
+  VStack,
+  HStack,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  IconButton,
+  Text,
+} from "@chakra-ui/react";
+import {
+  QuestionIcon,
+  DownloadIcon,
+  SearchIcon,
+  ChatIcon,
+} from "@chakra-ui/icons";
+import { motion } from "framer-motion";
 
-const MotionBox = motion(Box)
+const MotionBox = motion(Box);
+const MotionIconButton = motion(IconButton);
 
 const slides = [
-    {
-        image: 'https://images.unsplash.com/photo-1590959651373-a3db0f38a961?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80',
-        title: 'Egyptian Paints',
-        subtitle: 'Egyptian-made products of fantastic quality',
-        description: 'for you and your industry',
-        subtext: 'Join EGY CHEM HUB and find everything you need from high-quality chemicals and paints for the manufacturing and support buildings industry.'
-    },
-    {
-        image: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80',
-        title: 'Industrial Solutions',
-        subtitle: 'Complete Industrial Solutions',
-        description: 'for your manufacturing needs',
-        subtext: 'Discover our wide range of industrial solutions and manufacturing support services.'
-    },
-    {
-        image: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80',
-        title: 'Chemical Manufacturing',
-        subtitle: 'Quality Chemical Products',
-        description: 'for various industries',
-        subtext: 'Expert solutions in chemical manufacturing and processing for multiple industrial applications.'
-    }
-]
+  {
+    image:
+      "https://images.unsplash.com/photo-1590959651373-a3db0f38a961?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80",
+    title: "Egyptian Paints",
+    subtitle: "Egyptian-made products of fantastic quality",
+    description: "for you and your industry",
+    subtext:
+      "Join EGY-HEM-HUB and Find Everything You Need From High‑Quality Chemicals and Paints for The Manufacturing and Support Buildings Industry.",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80",
+    title: "Industrial Solutions",
+    subtitle: "Complete Industrial Solutions",
+    description: "for your manufacturing needs",
+    subtext:
+      "Discover our wide range of industrial solutions and manufacturing support services.",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80",
+    title: "Chemical Manufacturing",
+    subtitle: "Quality Chemical Products",
+    description: "for various industries",
+    subtext:
+      "Expert solutions in chemical manufacturing and processing for multiple industrial applications.",
+  },
+];
 
-const SLIDE_DURATION = 5000 // 5 seconds
+const SLIDE_DURATION = 5000;
 
-const HeroSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [autoplay, setAutoplay] = useState<NodeJS.Timeout | null>(null)
+const HeroSlider: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Function to start the autoplay timer
-  const startAutoplay = useCallback(() => {
-    // Clear any existing timer first
-    if (autoplay) {
-      clearInterval(autoplay)
-    }
-    // Set new timer
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length)
-    }, SLIDE_DURATION)
-    setAutoplay(timer)
-  }, [autoplay])
-
-  // Initialize autoplay on component mount
   useEffect(() => {
-    startAutoplay()
-    // Cleanup on unmount
-    return () => {
-      if (autoplay) {
-        clearInterval(autoplay)
-      }
-    }
-  }, [startAutoplay])
+    const timer = setInterval(
+      () => setCurrentSlide((prev) => (prev + 1) % slides.length),
+      SLIDE_DURATION
+    );
+    return () => clearInterval(timer);
+  }, []);
 
-  // Handle manual slide change
   const handleSlideChange = (index: number) => {
-    setCurrentSlide(index)
-    startAutoplay() // Reset timer when manually changing slides
-  }
+    setCurrentSlide(index);
+  };
 
   return (
     <Box position="relative" height="600px" overflow="hidden">
-      {/* Slider Content */}
+      {/* Background + fade */}
       <MotionBox
         bgImage={slides[currentSlide].image}
         bgSize="cover"
@@ -78,21 +82,14 @@ const HeroSlider = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Dark Overlay */}
-        <Box
-          position="absolute"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
-          bg="blackAlpha.500"
-        />
+        {/* Dark overlay */}
+        <Box position="absolute" inset={0} bg="blackAlpha.500" />
 
-        {/* Text Content Container - Positioned at first third */}
+        {/* Text panel */}
         <MotionBox
           position="absolute"
           top="25%"
-          left="0"
+          left={0}
           transform="translateY(-50%)"
           w="33.33%"
           px={8}
@@ -100,7 +97,6 @@ const HeroSlider = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {/* White Semi-transparent Background */}
           <Box
             bg="whiteAlpha.100"
             backdropFilter="blur(10px)"
@@ -108,10 +104,9 @@ const HeroSlider = () => {
             p={6}
             border="1px solid"
             borderColor="whiteAlpha.200"
-            maxW="100%"
           >
             <Text
-              fontSize="sm"
+              fontSize="md"
               textTransform="uppercase"
               mb={2}
               color="red.500"
@@ -119,107 +114,203 @@ const HeroSlider = () => {
             >
               {slides[currentSlide].title}
             </Text>
-            <Heading
-              size="lg"
+            <Text
+              as="h2"
+              fontSize="2xl"
               mb={4}
               fontWeight="bold"
-              lineHeight="1.2"
               color="white"
+              lineHeight="1.2"
             >
               {slides[currentSlide].subtitle}
-            </Heading>
-            <Text
-              fontSize="lg"
-              mb={4}
-              color="white"
-            >
+            </Text>
+            <Text fontSize="lg" mb={4} color="white">
               {slides[currentSlide].description}
             </Text>
-            <Text
-              fontSize="sm"
-              color="whiteAlpha.900"
-              noOfLines={3}
-            >
+            <Text fontSize="md" color="whiteAlpha.900" noOfLines={3}>
               {slides[currentSlide].subtext}
             </Text>
           </Box>
         </MotionBox>
 
-        {/* Slide Indicators */}
+        {/* Slide indicators */}
         <Flex
           position="absolute"
           bottom="40px"
           left="50%"
           transform="translateX(-50%)"
           gap={4}
-          alignItems="center"
         >
-          {slides.map((_, index) => (
+          {slides.map((_, idx) => (
             <Box
-              key={index}
-              onClick={() => handleSlideChange(index)}
+              key={idx}
+              onClick={() => handleSlideChange(idx)}
               cursor="pointer"
-              position="relative"
             >
               <MotionBox
-                w={currentSlide === index ? "24px" : "8px"}
+                w={currentSlide === idx ? "24px" : "8px"}
                 h="8px"
                 bg="white"
-                borderRadius={currentSlide === index ? "4px" : "full"}
-                transition={{ duration: 0.3 }}
+                borderRadius={currentSlide === idx ? "4px" : "full"}
                 animate={{
-                  width: currentSlide === index ? "24px" : "8px",
-                  opacity: currentSlide === index ? 1 : 0.5
+                  width: currentSlide === idx ? "24px" : "8px",
+                  opacity: currentSlide === idx ? 1 : 0.5,
                 }}
+                transition={{ duration: 0.3 }}
                 _hover={{ opacity: 0.8 }}
               />
             </Box>
           ))}
         </Flex>
 
-        {/* Right Side Buttons */}
+        {/* Right‑side buttons */}
         <VStack
           position="absolute"
-          right="0"
+          right={0}
           top="50%"
           transform="translateY(-50%)"
           spacing={4}
           pr={4}
+          align="end"
         >
-          <MotionBox whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <IconButton
-              aria-label="Support"
-              icon={<QuestionIcon />}
-              bg="red.600"
-              color="white"
-              size="lg"
-              _hover={{ bg: 'red.700' }}
-            />
-          </MotionBox>
-          <MotionBox whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <IconButton
-              aria-label="Download"
-              icon={<DownloadIcon />}
-              bg="red.600"
-              color="white"
-              size="lg"
-              _hover={{ bg: 'red.700' }}
-            />
-          </MotionBox>
-          <MotionBox whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <IconButton
-              aria-label="Chat"
-              icon={<ChatIcon />}
-              bg="red.600"
-              color="white"
-              size="lg"
-              _hover={{ bg: 'red.700' }}
-            />
-          </MotionBox>
+          {/* Support pop‑out */}
+          <Popover trigger="hover" placement="left" gutter={0}>
+            <PopoverTrigger>
+              <MotionIconButton
+                aria-label="Support"
+                icon={<QuestionIcon />}
+                bg="red.600"
+                color="white"
+                size="lg"
+                _hover={{ bg: "red.700" }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
+            </PopoverTrigger>
+            <PopoverContent
+              bg="transparent"
+              border="none"
+              w="auto"
+              _focus={{ boxShadow: "none" }}
+              mr={2}
+              p={0}
+            >
+              <PopoverBody p={0}>
+                <VStack spacing={2} align="end">
+                  {/* Search pill */}
+                  <HStack
+                    bg="red.600"
+                    borderRadius="full"
+                    px={4}
+                    py={2}
+                    cursor="pointer"
+                    _hover={{ bg: "red.700" }}
+                    spacing={2}
+                  >
+                    <SearchIcon color="white" boxSize={5} />
+                    <Text color="white" fontSize="sm">
+                      Search for a product
+                    </Text>
+                  </HStack>
+                  
+                  
+                </VStack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
+                 {/* Support pop‑out */}
+                 <Popover trigger="hover" placement="left" gutter={0}>
+            <PopoverTrigger>
+              <MotionIconButton
+                aria-label="Download"
+                icon={<DownloadIcon />}
+                bg="red.600"
+                color="white"
+                size="lg"
+                _hover={{ bg: "red.700" }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
+            </PopoverTrigger>
+            <PopoverContent
+              bg="transparent"
+              border="none"
+              w="auto"
+              _focus={{ boxShadow: "none" }}
+              mr={2}
+              p={0}
+            >
+              <PopoverBody p={0}>
+                <VStack spacing={2} align="end">
+                  {/* gettt code */}
+                  <HStack
+                    bg="red.600"
+                    borderRadius="full"
+                    px={4}
+                    py={2}
+                    cursor="pointer"
+                    _hover={{ bg: "red.700" }}
+                    spacing={2}
+                  >
+                    <SearchIcon color="white" boxSize={5} />
+                    <Text color="white" fontSize="sm">
+                      Get Code
+                    </Text>
+                  </HStack>
+                  
+                  
+                </VStack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
+
+          {/* Chat icon with pop‑out */}
+          <Popover trigger="hover" placement="left" gutter={0}>
+            <PopoverTrigger>
+              <MotionIconButton
+                aria-label="Chat"
+                icon={<ChatIcon />}
+                bg="red.600"
+                color="white"
+                size="lg"
+                _hover={{ bg: "red.700" }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
+            </PopoverTrigger>
+            <PopoverContent
+              bg="transparent"
+              border="none"
+              w="auto"
+              _focus={{ boxShadow: "none" }}
+              mr={2}
+              p={0}
+            >
+              <PopoverBody p={0}>
+                <HStack
+                  bg="red.600"
+                  borderRadius="full"
+                  px={4}
+                  py={2}
+                  cursor="pointer"
+                  _hover={{ bg: "red.700" }}
+                  spacing={2}
+                  alignSelf="end"
+                >
+                  <ChatIcon color="white" boxSize={5} />
+                  <Text color="white" fontSize="sm">
+                    Talk to support chatbot
+                  </Text>
+                </HStack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
         </VStack>
       </MotionBox>
     </Box>
-  )
-}
+  );
+};
 
-export default HeroSlider
+export default HeroSlider;

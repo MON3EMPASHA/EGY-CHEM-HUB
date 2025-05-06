@@ -92,12 +92,12 @@ import {
                     size="md"
                     px={6}
                   >
-                    Shop Now
+                    Discover Now
                   </Button>
                 </Box>
                 <Box>
                   <Image
-                    src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80" // Replace with your product image
+                    src="/images/news3.jpg"
                     alt="Paint Product"
                     objectFit="cover"
                     h="100%"

@@ -14,7 +14,7 @@ const Footer = () => {
       {/* logo wl goz2 elawl */}
       <Container maxW="1200px" py={4}>
         <Flex justify="space-between" align="center">
-          <Image src="/logo.png" alt="EGY CHEM HUB" h="30px" />
+          <Image src="images/logo1.png" alt="EGY CHEM HUB" h="40px" />
           <IconButton
             aria-label="Return to top"
             icon={<ArrowUpIcon />}

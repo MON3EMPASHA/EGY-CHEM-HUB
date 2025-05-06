@@ -142,7 +142,8 @@ const productSchema = mongoose.Schema(
     },
 
     minimumQuantities: { type: Number, default: null },
-    hazard: { type: String, default: null },
+
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

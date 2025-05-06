@@ -1,4 +1,3 @@
-// components/home/ContactUs.tsx
 import { Box, Grid, Heading, Text, Input, Button, VStack, Textarea } from '@chakra-ui/react'
 
 const ContactUs = () => {

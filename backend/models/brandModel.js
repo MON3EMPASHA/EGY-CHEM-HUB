@@ -22,6 +22,10 @@ const brandSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    businessModelPdf: {
+      type: String, // Store the file path or URL
+      required: false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

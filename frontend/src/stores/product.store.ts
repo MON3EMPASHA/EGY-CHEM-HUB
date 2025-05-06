@@ -1,4 +1,3 @@
-// src/store/productStore.ts
 import { create } from "zustand";
 import axios from "axios";
 

@@ -8,8 +8,9 @@ import {
   deleteBrand,
 } from "../controllers/brandController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import upload from "../middlewares/upload.js";
 
-router.post("/", authenticate, authorizeAdmin, createBrand);
+router.post("/", authenticate, authorizeAdmin, upload, createBrand);
 
 router.get("/", getAllBrands);
 
