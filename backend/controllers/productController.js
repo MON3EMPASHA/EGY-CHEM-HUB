@@ -245,6 +245,10 @@ const getProductById = asyncHandler(async (req, res) => {
   if (!product) {
     throw new Error("Product not found");
   }
+  // Increment views
+  product.views = (product.views || 0) + 1;
+  await product.save();
+
   res.json(product);
 });
 
@@ -255,6 +259,11 @@ const getAllProducts = asyncHandler(async (req, res) => {
     .limit(12)
     .sort({ createdAt: -1 });
 
+  res.json(products);
+});
+
+const getTopViewedProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find().sort({ views: -1 }).limit(10);
   res.json(products);
 });
 /////////////////////////////////////////////////////////////
@@ -445,4 +454,5 @@ export {
   applySaleToProduct,
   getProductsOnSale,
   getProductsByBrandyId,
+  getTopViewedProducts,
 };

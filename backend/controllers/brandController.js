@@ -3,6 +3,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 
 const createBrand = asyncHandler(async (req, res) => {
   const { name, description, website, logo } = req.body;
+  const businessModelPdf = req.file ? req.file.path : undefined;
 
   const existingBrand = await Brand.findOne({ name });
   if (existingBrand) {
@@ -13,6 +14,7 @@ const createBrand = asyncHandler(async (req, res) => {
     description,
     website,
     logo,
+    businessModelPdf,
   });
 
   const createdBrand = await brand.save();
@@ -44,6 +46,9 @@ const updateBrand = asyncHandler(async (req, res) => {
   brand.description = description || brand.description;
   brand.website = website || brand.website;
   brand.logo = logo || brand.logo;
+  if (req.file) {
+    brand.businessModelPdf = req.file.path;
+  }
 
   const updatedBrand = await brand.save();
   res.status(200).json(updatedBrand);

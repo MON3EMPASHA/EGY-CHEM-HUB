@@ -17,6 +17,7 @@ import {
   applySaleToProduct,
   getProductsOnSale,
   getProductsByBrandyId,
+  getTopViewedProducts,
 } from "../controllers/productController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
@@ -49,6 +50,9 @@ router.route("/sale").get(getProductsOnSale);
 
 // Get a single product by ID
 router.route("/:id").get(getProductById);
+
+// Get top viewed products
+router.route("/top").get(getTopViewedProducts);
 
 // Add a review to a product
 router.route("/:id/review").post(authenticate, addProductReview);
