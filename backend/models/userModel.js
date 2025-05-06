@@ -11,6 +11,19 @@ const userSchema = mongoose.Schema(
       unique: true,
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     },
+    companyName: {
+      type: String,
+      required: true,
+    },
+    dateOfBirth: {
+      type: Date,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      match: /^\+?[1-9]\d{1,14}$/,
+    },
     password: {
       type: String,
       required: true,

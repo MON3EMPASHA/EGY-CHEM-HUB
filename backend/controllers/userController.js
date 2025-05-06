@@ -2,14 +2,56 @@ import User from "../models/userModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import bycrypt from "bcryptjs";
 import createToken from "../utils/createToken.js";
+import { OAuth2Client } from "google-auth-library";
+import dotenv from "dotenv";
+dotenv.config();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Google Auth Function
+const googleAuth = asyncHandler(async (req, res) => {
+  const { credential } = req.body; // The token received from frontend
+
+  // Verify the ID token with Google's API
+  const ticket = await client.verifyIdToken({
+    idToken: credential, // Token received from the frontend
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  const { email, name, picture } = ticket.getPayload(); // Extract info from token
+
+  // Check if the user already exists
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    // If no user, ask signup manually
+    res.status(400);
+    throw new Error("User not found. Please sign up first.");
+  }
+  // Generate a JWT for the logged-in user
+  createToken(res, user._id);
+
+  res.json({
+    success: true,
+    message: "Google Sign-In successful",
+    user,
+  });
+});
 
 const HashedPassword = async (password) => {
   const salt = await bycrypt.genSalt(10);
   return await bycrypt.hash(password, salt);
 };
 const createUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-  if (!username || !email || !password) {
+  const { username, email, companyName, dateOfBirth, phoneNumber, password } =
+    req.body;
+  if (
+    !username ||
+    !email ||
+    !password ||
+    !companyName ||
+    !dateOfBirth ||
+    !phoneNumber
+  ) {
     res.status(400);
     throw new Error("All fields are required");
   }
@@ -17,11 +59,14 @@ const createUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error("User already exists");
+    throw new Error("Email already exists");
   }
   const user = await User.create({
     username,
     email,
+    companyName,
+    dateOfBirth,
+    phoneNumber,
     password: await HashedPassword(password),
   });
   res.status(201).json({ message: "User created successfully", user });
@@ -166,4 +211,5 @@ export {
   deleteUserById,
   getUserById,
   updateUserById,
+  googleAuth,
 };

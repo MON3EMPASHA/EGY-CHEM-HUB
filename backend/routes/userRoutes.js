@@ -12,8 +12,11 @@ import {
   updateUserById,
 } from "../controllers/userController.js";
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { googleAuth } from "../controllers/userController.js";
 // Create a new user
 router.route("/").post(createUser);
+
+router.post("/google-login", googleAuth);
 
 // Login an existing user
 router.post("/login", loginUser);
