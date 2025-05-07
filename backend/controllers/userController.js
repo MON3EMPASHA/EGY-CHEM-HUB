@@ -42,8 +42,15 @@ const HashedPassword = async (password) => {
   return await bycrypt.hash(password, salt);
 };
 const createUser = asyncHandler(async (req, res) => {
-  const { username, email, companyName, dateOfBirth, phoneNumber, password } =
-    req.body;
+  const {
+    username,
+    email,
+    companyName,
+    dateOfBirth,
+    phoneNumber,
+    password,
+    bio,
+  } = req.body;
   if (
     !username ||
     !email ||
@@ -68,6 +75,7 @@ const createUser = asyncHandler(async (req, res) => {
     dateOfBirth,
     phoneNumber,
     password: await HashedPassword(password),
+    bio,
   });
   res.status(201).json({ message: "User created successfully", user });
 });

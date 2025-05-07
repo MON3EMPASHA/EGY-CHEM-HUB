@@ -28,6 +28,9 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    bio: {
+      type: String,
+    },
     isAdmin: {
       type: Boolean,
       required: true,

@@ -268,27 +268,34 @@ const getTopViewedProducts = asyncHandler(async (req, res) => {
 });
 /////////////////////////////////////////////////////////////
 const searchProducts = asyncHandler(async (req, res) => {
-  // This function is used to search for products based on a keyword (name)
-
-  const pageSize = 6; //Limits results to a fixed page size (6 products).
+  const pageSize = 6; // Limits results to a fixed page size (6 products).
+  const page = Number(req.query.page) || 1;
 
   const keyword = req.query.keyword
     ? {
-        name: {
-          $regex: req.query.keyword,
-          $options: "i",
-        },
+        $or: [
+          { "name.en": { $regex: req.query.keyword, $options: "i" } },
+          { "name.ar": { $regex: req.query.keyword, $options: "i" } },
+          { "name.fr": { $regex: req.query.keyword, $options: "i" } },
+          { "name.de": { $regex: req.query.keyword, $options: "i" } },
+          { "name.zh": { $regex: req.query.keyword, $options: "i" } },
+          { "name.es": { $regex: req.query.keyword, $options: "i" } },
+          { "name.ru": { $regex: req.query.keyword, $options: "i" } },
+          { "name.ja": { $regex: req.query.keyword, $options: "i" } },
+        ],
       }
     : {};
 
   const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword }).limit(pageSize);
+  const products = await Product.find({ ...keyword })
+    .limit(pageSize)
+    .skip(pageSize * (page - 1));
 
   res.json({
     products,
-    page: 1,
+    page,
     pages: Math.ceil(count / pageSize),
-    hasMore: count > pageSize,
+    hasMore: count > pageSize * page,
   });
 });
 const addProductReview = asyncHandler(async (req, res) => {

@@ -3,11 +3,11 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import { cachedTranslate } from "../utils/translate.js";
 
 const createCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, image } = req.body; // Include image in the request body
 
-  if (!name) {
+  if (!name || !image) {
     res.status(400);
-    throw new Error("Name is required");
+    throw new Error("Please provide all required fields: name, image");
   }
 
   const existingCategory = await Category.findOne({ "name.en": name });
@@ -24,12 +24,12 @@ const createCategory = asyncHandler(async (req, res) => {
     translatedName[lang] = await cachedTranslate(name, lang);
   }
 
-  const category = await Category.create({ name: translatedName });
+  const category = await Category.create({ name: translatedName, image }); // Save image along with name
   res.status(201).json({ message: "Category added successfully", category });
 });
 
 const updateCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, image } = req.body;
   const { categoryId } = req.params;
 
   const category = await Category.findById(categoryId);
@@ -53,6 +53,11 @@ const updateCategory = asyncHandler(async (req, res) => {
     Object.keys(name).forEach((lang) => {
       category.name[lang] = name[lang];
     });
+  }
+
+  // Update image if provided
+  if (image) {
+    category.image = image;
   }
 
   const updatedCategory = await category.save();
