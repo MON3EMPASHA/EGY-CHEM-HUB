@@ -2,7 +2,7 @@ import Brand from "../models/brandModel.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
 const createBrand = asyncHandler(async (req, res) => {
-  const { name, description, website, logo } = req.body;
+  const { name, description, shortDescription, website, logo } = req.body;
   const businessModelPdf = req.file ? req.file.path : undefined;
 
   const existingBrand = await Brand.findOne({ name });
@@ -12,6 +12,7 @@ const createBrand = asyncHandler(async (req, res) => {
   const brand = new Brand({
     name,
     description,
+    shortDescription,
     website,
     logo,
     businessModelPdf,
@@ -35,7 +36,7 @@ const getBrandById = asyncHandler(async (req, res) => {
 });
 
 const updateBrand = asyncHandler(async (req, res) => {
-  const { name, description, website, logo } = req.body;
+  const { name, description, shortDescription, website, logo } = req.body;
 
   const brand = await Brand.findById(req.params.id);
   if (!brand) {
@@ -44,6 +45,7 @@ const updateBrand = asyncHandler(async (req, res) => {
 
   brand.name = name || brand.name;
   brand.description = description || brand.description;
+  brand.shortDescription = shortDescription || brand.shortDescription;
   brand.website = website || brand.website;
   brand.logo = logo || brand.logo;
   if (req.file) {

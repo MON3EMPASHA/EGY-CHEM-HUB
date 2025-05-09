@@ -13,6 +13,11 @@ const brandSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
+    shortDescription: {
+      type: String,
+      required: false,
+      trim: true,
+    },
     website: {
       type: String,
       required: false,

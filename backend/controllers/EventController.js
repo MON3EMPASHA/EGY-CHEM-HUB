@@ -3,9 +3,17 @@ import Event from "../models/EventModel.js";
 import { translateText, cachedTranslate } from "../utils/translate.js";
 
 const createEvent = asyncHandler(async (req, res) => {
-  const { title, description, date, location } = req.body;
+  const { title, description, shortDescription, date, location, image } =
+    req.body;
 
-  if (!title || !description || !date || !location) {
+  if (
+    !title ||
+    !description ||
+    !shortDescription ||
+    !image ||
+    !date ||
+    !location
+  ) {
     res.status(400);
     throw new Error("All fields are required");
   }
@@ -18,6 +26,7 @@ const createEvent = asyncHandler(async (req, res) => {
   const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
   const translatedTitle = { en: title };
   const translatedDescription = { en: description };
+  const translatedShortDescription = { en: shortDescription };
   const translatedLocation = { en: location };
 
   // Translate to other languages
@@ -25,26 +34,33 @@ const createEvent = asyncHandler(async (req, res) => {
     translatedTitle[lang] = await cachedTranslate(title, lang);
     translatedDescription[lang] = await cachedTranslate(description, lang);
     translatedLocation[lang] = await cachedTranslate(location, lang);
+    translatedShortDescription[lang] = await cachedTranslate(
+      shortDescription,
+      lang
+    );
   }
 
   const event = await Event.create({
     title: translatedTitle,
     description: translatedDescription,
+    shortDescription: translatedShortDescription,
     date,
     location: translatedLocation,
+    image,
     createdBy: req.user._id,
   });
 
   res.status(201).json(event);
 });
 const getEvents = asyncHandler(async (req, res) => {
-  // Fetch all events sorted by date (ascending)
   const events = await Event.find().sort({ date: 1 });
 
   const result = events.map((event) => ({
     _id: event._id,
     title: event.title,
     description: event.description,
+    shortDescription: event.shortDescription,
+    image: event.image,
     location: event.location,
     date: event.date,
     createdBy: event.createdBy,
@@ -68,6 +84,8 @@ const getEventById = asyncHandler(async (req, res) => {
     _id: event._id,
     title: event.title,
     description: event.description,
+    shortDescription: event.shortDescription,
+    image: event.image,
     location: event.location,
     date: event.date,
     createdBy: event.createdBy,
@@ -79,7 +97,8 @@ const getEventById = asyncHandler(async (req, res) => {
 });
 
 const updateEvent = asyncHandler(async (req, res) => {
-  const { title, description, date, location } = req.body;
+  const { title, description, shortDescription, image, date, location } =
+    req.body;
 
   const event = await Event.findById(req.params.id);
 
@@ -90,14 +109,12 @@ const updateEvent = asyncHandler(async (req, res) => {
 
   const languages = ["ar", "fr", "de", "zh", "es", "ru", "ja"];
 
-  // Update English fields and translate if necessary
   if (title?.en) {
     event.title.en = title.en;
     for (const lang of languages) {
       event.title[lang] = await cachedTranslate(title.en, lang);
     }
   } else if (title) {
-    // Update other language-specific titles
     Object.keys(title).forEach((lang) => {
       event.title[lang] = title[lang];
     });
@@ -109,9 +126,22 @@ const updateEvent = asyncHandler(async (req, res) => {
       event.description[lang] = await cachedTranslate(description.en, lang);
     }
   } else if (description) {
-    // Update other language-specific descriptions
     Object.keys(description).forEach((lang) => {
       event.description[lang] = description[lang];
+    });
+  }
+
+  if (shortDescription?.en) {
+    event.shortDescription.en = shortDescription.en;
+    for (const lang of languages) {
+      event.shortDescription[lang] = await cachedTranslate(
+        description.en,
+        lang
+      );
+    }
+  } else if (shortDescription) {
+    Object.keys(shortDescription).forEach((lang) => {
+      event.shortDescription[lang] = shortDescription[lang];
     });
   }
 
@@ -121,15 +151,17 @@ const updateEvent = asyncHandler(async (req, res) => {
       event.location[lang] = await cachedTranslate(location.en, lang);
     }
   } else if (location) {
-    // Update other language-specific locations
     Object.keys(location).forEach((lang) => {
       event.location[lang] = location[lang];
     });
   }
 
-  // Update date if provided
   if (date) {
     event.date = date;
+  }
+
+  if (image) {
+    event.image = image;
   }
 
   const updatedEvent = await event.save();

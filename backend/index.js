@@ -21,6 +21,8 @@ import uploadRoutes from "./routes/UploadRoutes.js";
 import cloudinaryRoutes from "./routes/cloudinaryRoutes.js";
 import newRoutes from "./routes/newRoutes.js";
 import supplierRoutes from "./routes/supplierRoutes.js";
+import visionRoutes from "./routes/visionRoutes.js";
+import gitCodeRoutes from "./routes/gitCodeRoutes.js";
 import { trackVisitor } from "./middlewares/visitorTracker.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,5 +59,7 @@ app.use("/api/articles", articleRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/news", newRoutes);
 app.use("/api/suppliers", supplierRoutes);
+app.use("/api/vision", visionRoutes);
+app.use("/api/gitcodes", gitCodeRoutes);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
